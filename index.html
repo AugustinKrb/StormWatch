@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>StormWatch</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="theme-color" content="#0a130f">
+<script>
+  try {
+    location.replace(localStorage.getItem('sw_region') ? 'dashboard.html' : 'settings.html');
+  } catch (e) {
+    location.replace('settings.html');
+  }
+</script>
+<script src="js/sw-register.js"></script>
+</head>
+<body></body>
+</html>

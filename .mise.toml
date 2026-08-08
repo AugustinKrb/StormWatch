@@ -1,0 +1,87 @@
+[tools]
+python = "3.14"
+node = "24"
+
+[tasks.precommit-install]
+description = "Install the git hook so pre-commit runs automatically on every commit"
+run = "uv run pre-commit install"
+
+[tasks.precommit-run]
+description = "Run all pre-commit hooks against every file in the repo"
+run = "uv run pre-commit run --all-files"
+
+[tasks.run-stormwatch]
+description = "Start StormWatch in the background (docker compose up -d --build)"
+run = "docker compose up -d --build"
+
+[tasks.run-stormwatch-dev]
+description = "Start StormWatch in the foreground, streaming logs (docker compose up --build)"
+run = "docker compose up --build"
+
+[tasks.run-doc]
+description = "Serve the MkDocs site locally with hot reload (http://127.0.0.1:8000)"
+run = "uv run --with 'mkdocs<2' --with 'mkdocs-material<10' mkdocs serve"
+
+[tasks.dockerhub-release]
+description = "Build a release tag from a clean checkout and push it to Docker Hub — run locally, no CI secret involved. Usage: mise run dockerhub-release v1.2.3"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+TAG="${1:?Usage: mise run dockerhub-release <git-tag, e.g. v1.2.3>}"
+IMAGE="docker.io/augustinkrb/stormwatch"
+VERSION="${TAG#v}"
+REGISTRY="https://index.docker.io/v1/"
+CONFIG="${DOCKER_CONFIG:-$HOME/.docker}/config.json"
+
+DOCKER_USER=""
+if [ -f "$CONFIG" ]; then
+  CREDS_STORE=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('credsStore',''))" "$CONFIG" 2>/dev/null || true)
+  if [ -n "$CREDS_STORE" ]; then
+    DOCKER_USER=$(printf '%s' "$REGISTRY" | "docker-credential-$CREDS_STORE" get 2>/dev/null \
+      | python3 -c "import json,sys; print(json.load(sys.stdin).get('Username',''))" 2>/dev/null || true)
+  else
+    DOCKER_USER=$(python3 -c "
+import json, base64, sys
+try:
+    d = json.load(open(sys.argv[1]))
+    auth = d.get('auths', {}).get(sys.argv[2], {}).get('auth', '')
+    print(base64.b64decode(auth).decode().split(':')[0] if auth else '')
+except Exception:
+    print('')
+" "$CONFIG" "$REGISTRY" 2>/dev/null || true)
+  fi
+fi
+
+if [ -z "$DOCKER_USER" ]; then
+  echo "Not logged in to Docker Hub. Run 'docker login' first." >&2
+  exit 1
+fi
+
+echo "> Docker Hub user: $DOCKER_USER"
+read -r -p "Push $IMAGE:$VERSION as this account? [y/N] " CONFIRM
+if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
+  echo "Aborted."
+  exit 1
+fi
+
+git fetch origin --tags --quiet
+if ! git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
+  echo "Tag '$TAG' not found, even after fetching. Typo?" >&2
+  exit 1
+fi
+
+WORKTREE=$(mktemp -d)
+trap 'git worktree remove "$WORKTREE" --force 2>/dev/null || true' EXIT
+
+git worktree add --detach "$WORKTREE" "$TAG"
+docker build -t "$IMAGE:$VERSION" "$WORKTREE"
+
+if [[ "$VERSION" != *-* ]]; then
+  docker tag "$IMAGE:$VERSION" "$IMAGE:latest"
+fi
+
+docker push "$IMAGE:$VERSION"
+if [[ "$VERSION" != *-* ]]; then
+  docker push "$IMAGE:latest"
+fi
+"""

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Poste de Veille — logos animés</title>
+<style>
+  :root{
+    --accent:#e08e0d;
+    --bg:#0c121c;
+    --panel:#141c2a;
+    --line:#2a3547;
+    --text:#cdd8e6;
+    --muted:#7c8aa0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:40px 24px 80px;
+    background:
+      repeating-radial-gradient(circle at 50% -10%, transparent 0 80px, rgba(255,255,255,0.02) 81px, transparent 82px),
+      var(--bg);
+    font-family:'IBM Plex Mono','JetBrains Mono',ui-monospace,Consolas,monospace;
+    color:var(--text);
+  }
+  h1{font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:center;margin:0 0 4px;}
+  h1 span{color:var(--text);}
+  p.sub{text-align:center;color:var(--muted);font-size:12.5px;max-width:560px;margin:0 auto 32px;line-height:1.6;}
+  .controls{
+    max-width:900px;margin:0 auto 36px;display:flex;flex-wrap:wrap;gap:10px;
+    justify-content:center;align-items:center;padding:14px;
+    background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  }
+  .swatch{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0;}
+  .swatch.active{border-color:var(--text);}
+  .ctrl-label{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:4px;}
+  input[type=color]{width:30px;height:26px;border:2px solid var(--line);border-radius:4px;background:none;cursor:pointer;}
+  .btn{
+    background:var(--line);color:var(--text);border:none;padding:6px 12px;font:inherit;
+    font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-radius:4px;cursor:pointer;margin-left:12px;
+  }
+  .grid{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:24px 16px;text-align:center;}
+  .stage{
+    width:100%;aspect-ratio:1.4/1;border-radius:3px;display:flex;align-items:center;justify-content:center;
+    margin-bottom:14px;background:#060a11;overflow:hidden;
+  }
+  .stage svg{width:88px;height:88px;color:var(--accent);overflow:visible;}
+  .name{font-size:12px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;}
+  .desc{font-size:11px;color:var(--muted);line-height:1.5;}
+
+  /* --- 01: sweep --- */
+  @keyframes sweepspin{to{transform:rotate(360deg);}}
+  .sweep-rotor{transform-origin:50px 50px;animation:sweepspin 4s linear infinite;}
+  @keyframes blip-pulse{0%,100%{opacity:.35;transform:scale(.85);}50%{opacity:1;transform:scale(1.1);}}
+  .blip{transform-origin:72px 30px;animation:blip-pulse 4s ease-in-out infinite;}
+
+  /* --- 03: funnel --- */
+  /* dashed bands offset continuously (axis rotation, not swaying); band5 spins faster, like a real tornado */
+  @keyframes spinA{to{stroke-dashoffset:-15;}}
+  @keyframes spinB{to{stroke-dashoffset:-13;}}
+  @keyframes spinC{to{stroke-dashoffset:-12;}}
+  @keyframes spinD{to{stroke-dashoffset:-10;}}
+  @keyframes spinE{to{stroke-dashoffset:-7;}}
+  .band1{stroke-dasharray:9 6;animation:spinA 1.3s linear infinite;}
+  .band2{stroke-dasharray:8 5;animation:spinB 1.15s linear infinite;}
+  .band3{stroke-dasharray:7 5;animation:spinC 1s linear infinite;}
+  .band4{stroke-dasharray:6 4;animation:spinD .85s linear infinite;}
+  .band5{stroke-dasharray:4 3;animation:spinE .6s linear infinite;}
+
+  /* --- 05: storm badge --- */
+  /* the bolt stays fixed, only its opacity flickers; the rain falls in a loop, dashed stroke */
+  @keyframes flash{0%,100%{opacity:1;}4%{opacity:.15;}8%{opacity:1;}12%{opacity:.25;}16%{opacity:1;}60%{opacity:1;}}
+  .bolt-badge{animation:flash 3.2s ease-in-out infinite;}
+  @keyframes fall{0%{transform:translateY(0);opacity:0;}15%{opacity:1;}80%{opacity:1;}100%{transform:translateY(9px);opacity:0;}}
+  .rain1,.rain2,.rain3{stroke-dasharray:0.1 4.5;}
+  .rain1{animation:fall 1.1s linear infinite;}
+  .rain2{animation:fall 1.1s linear infinite;animation-delay:.35s;}
+  .rain3{animation:fall 1.1s linear infinite;animation-delay:.6s;}
+
+  /* --- 06: minimal echo --- */
+  @keyframes pingwave{0%{transform:scale(.3);opacity:.9;}100%{transform:scale(1.2);opacity:0;}}
+  .wave{transform-origin:50px 50px;animation:pingwave 2.4s ease-out infinite;}
+  .wave2{animation-delay:1.2s;}
+  .dot{animation:blip-pulse 2.4s ease-in-out infinite;transform-origin:50px 50px;}
+  .wave-echo{transform-origin:68px 34px;animation:pingwave 2.2s ease-out infinite;animation-delay:.6s;}
+
+  body.paused svg *{animation-play-state:paused!important;}
+  @media (prefers-reduced-motion: reduce){svg *{animation:none!important;}}
+</style>
+</head>
+<body>
+
+<h1>Poste de Veille <span>/ logos animés</span></h1>
+<p class="sub">Les 4 finalistes, animation pure CSS intégrée au SVG — aucune dépendance externe, fonctionne aussi en <code>&lt;img src="logo.svg"&gt;</code>.</p>
+
+<div class="controls">
+  <span class="ctrl-label">Couleur</span>
+  <button class="swatch active" style="background:#e08e0d" data-c="#e08e0d" title="Alerte"></button>
+  <button class="swatch" style="background:#2dd4bf" data-c="#2dd4bf" title="Veille"></button>
+  <button class="swatch" style="background:#a78bfa" data-c="#a78bfa" title="Convectif"></button>
+  <button class="swatch" style="background:#ef4444" data-c="#ef4444" title="Danger"></button>
+  <input type="color" id="custom" value="#e08e0d" title="Couleur libre">
+  <button class="btn" id="pausebtn">Figer</button>
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <div class="stage">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="3"/>
+        <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" stroke-width="2" opacity="0.55"/>
+        <circle cx="50" cy="50" r="14" fill="none" stroke="currentColor" stroke-width="2" opacity="0.35"/>
+        <line x1="8" y1="50" x2="92" y2="50" stroke="currentColor" stroke-width="1" opacity="0.2"/>
+        <line x1="50" y1="8" x2="50" y2="92" stroke="currentColor" stroke-width="1" opacity="0.2"/>
+        <g class="sweep-rotor">
+          <path d="M50 50 L50 8 A42 42 0 0 1 79.7 20.3 Z" fill="currentColor" opacity="0.35"/>
+          <g transform="rotate(-18 50 50)"><path d="M50 50 L50 8 A42 42 0 0 1 79.7 20.3 Z" fill="currentColor" opacity="0.16"/></g>
+          <g transform="rotate(-36 50 50)"><path d="M50 50 L50 8 A42 42 0 0 1 79.7 20.3 Z" fill="currentColor" opacity="0.07"/></g>
+        </g>
+        <circle class="blip" cx="72" cy="30" r="3.5" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="name">01 — Balayage</div>
+    <div class="desc">Faisceau qui tourne en continu, traîne dégradée, écho qui pulse à son passage.</div>
+  </div>
+
+  <div class="card">
+    <div class="stage">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="3"/>
+        <path class="band1" d="M22 24 Q50 18 78 24 Q60 30 50 30 Q40 30 30 32" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        <path class="band2" d="M28 38 Q50 34 72 38 Q58 43 50 43 Q42 43 34 44" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        <path class="band3" d="M34 52 Q50 49 66 52 Q56 56 50 56 Q44 56 40 57" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+        <path class="band4" d="M40 65 Q50 63 60 65 Q54 68 50 68 Q46 68 44 69" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        <path class="band5" d="M45 77 Q50 76 55 77" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="name">03 — Entonnoir</div>
+    <div class="desc">Les bandes tournent en continu sur elles-mêmes, de plus en plus vite vers la pointe.</div>
+  </div>
+
+  <div class="card">
+    <div class="stage">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="58" r="34" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.5"/>
+        <circle cx="50" cy="58" r="20" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+        <path d="M30 40 a10 10 0 0 1 19 -4 a8 8 0 0 1 15 3 a9 9 0 0 1 -2 17 H33 a11 11 0 0 1 -3 -16z" fill="currentColor"/>
+        <path class="bolt-badge" d="M47 56 L38 71 L44 71 L42 85 L53 68 L46 68 Z" fill="currentColor"/>
+        <line class="rain1" x1="30" y1="60" x2="27" y2="72" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+        <line class="rain2" x1="58" y1="58" x2="55" y2="70" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+        <line class="rain3" x1="66" y1="62" x2="63" y2="74" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="name">05 — Badge orage</div>
+    <div class="desc">L'éclair, plein et fixe, clignote sur place. Les gouttes, en mini pointillés, tombent en boucle.</div>
+  </div>
+
+  <div class="card">
+    <div class="stage">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="2" opacity="0.9"/>
+        <circle cx="50" cy="50" r="27" fill="none" stroke="currentColor" stroke-width="2" opacity="0.55"/>
+        <circle cx="50" cy="50" r="14" fill="none" stroke="currentColor" stroke-width="2" opacity="0.3"/>
+        <circle class="wave" cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <circle class="wave wave2" cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <circle class="dot" cx="50" cy="50" r="3" fill="currentColor"/>
+        <circle cx="68" cy="34" r="9" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+        <circle class="wave-echo" cx="68" cy="34" r="9" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="68" cy="34" r="3" fill="currentColor" opacity="0.85"/>
+      </svg>
+    </div>
+    <div class="name">06 — Écho minimal</div>
+    <div class="desc">Onde radar qui se propage en continu depuis le centre, plus un écho secondaire qui pulse.</div>
+  </div>
+
+</div>
+
+<script>
+document.querySelectorAll('.swatch').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.documentElement.style.setProperty('--accent',b.dataset.c);
+    document.getElementById('custom').value=b.dataset.c;
+    document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+document.getElementById('custom').addEventListener('input',e=>{
+  document.documentElement.style.setProperty('--accent',e.target.value);
+  document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));
+});
+document.getElementById('pausebtn').addEventListener('click',()=>{
+  document.body.classList.toggle('paused');
+  document.getElementById('pausebtn').textContent = document.body.classList.contains('paused') ? 'Relancer' : 'Figer';
+});
+</script>
+
+</body>
+</html>

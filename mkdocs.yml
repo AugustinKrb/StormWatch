@@ -1,0 +1,21 @@
+---
+site_name: StormWatch
+site_description: Real-time storm-chasing dashboard
+repo_url: https://github.com/AugustinKrb/StormWatch
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: cyan
+  features:
+    - navigation.instant
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Deployment: deployment.md
+  - Contributing: contributing.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences

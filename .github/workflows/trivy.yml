@@ -1,0 +1,71 @@
+---
+name: Trivy
+
+"on":
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  trivy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
+
+      - name: Print findings as a readable table (always, never fails the job)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
+        env:
+          TRIVY_SHOW_SUPPRESSED: "true"
+        with:
+          scan-type: fs
+          scanners: vuln,secret,misconfig
+          severity: CRITICAL,HIGH
+          format: table
+          exit-code: "0"
+
+      - name: Export findings as JSON for the PR comment
+        if: github.event_name == 'pull_request'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
+        with:
+          scan-type: fs
+          scanners: vuln,secret,misconfig
+          severity: CRITICAL,HIGH
+          format: json
+          output: trivy.json
+          exit-code: "0"
+
+      - name: Build a markdown table from the JSON findings
+        if: github.event_name == 'pull_request'
+        run: python3 .github/scripts/trivy_to_markdown.py trivy.json "Trivy — source scan" > trivy-comment.md
+
+      - name: Post/update the scan results as a PR comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88  # v3.0.5
+        with:
+          header: trivy-source-scan
+          path: trivy-comment.md
+
+      - name: Scan source + IaC for vulns/secrets/misconfig
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
+        with:
+          scan-type: fs
+          scanners: vuln,secret,misconfig
+          severity: CRITICAL,HIGH
+          limit-severities-for-sarif: "true"
+          format: sarif
+          output: trivy-results.sarif
+          exit-code: "1"
+
+      - uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3  # v4.37.6
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: trivy-results.sarif

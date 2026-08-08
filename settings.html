@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0a0e14">
+<title>StormWatch — Zone de veille</title>
+<script>try { var t = localStorage.getItem('sw_theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<link rel="icon" id="favicon-link" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2240%22%20fill%3D%22%2347d7e0%22/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/logo.css">
+<link rel="stylesheet" href="css/settings.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.29.1/index.js"></script>
+</head>
+<body class="settings-body">
+
+<div class="settings-header">
+  <div class="sweep" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="3"/><path class="logo-band1" d="M22 24 Q50 18 78 24 Q60 30 50 30 Q40 30 30 32" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path class="logo-band2" d="M28 38 Q50 34 72 38 Q58 43 50 43 Q42 43 34 44" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path class="logo-band3" d="M34 52 Q50 49 66 52 Q56 56 50 56 Q44 56 40 57" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path class="logo-band4" d="M40 65 Q50 63 60 65 Q54 68 50 68 Q46 68 44 69" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path class="logo-band5" d="M45 77 Q50 76 55 77" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+  <p class="settings-step">Configuration</p>
+  <h1 class="settings-title">StormWatch</h1>
+  <p class="settings-desc">
+    Modifiable à tout moment depuis le dashboard.
+  </p>
+</div>
+
+<div class="settings-warning" id="backend-error" style="display:none; width:100%; max-width:920px">
+  Backend indisponible — impossible de charger ou sauvegarder les paramètres. Vérifie que le serveur StormWatch est démarré.
+</div>
+
+<div class="settings-tabs" role="tablist">
+  <button class="settings-tab is-active" data-tab="zone" role="tab" aria-selected="true">Zone</button>
+  <button class="settings-tab" data-tab="couches" role="tab" aria-selected="false">Couches</button>
+  <button class="settings-tab" data-tab="alertes" role="tab" aria-selected="false">Alertes &amp; Timeline</button>
+  <button class="settings-tab" data-tab="theme" role="tab" aria-selected="false">Thème</button>
+  <button class="settings-tab" data-tab="outils" role="tab" aria-selected="false">Accès rapide</button>
+</div>
+
+<div class="settings-panel" data-panel="zone">
+  <p class="settings-desc" style="margin-bottom:20px">
+    Choisissez votre zone de veille principale. Elle détermine le centre de la carte
+    et les indices ECMWF.
+  </p>
+  <div id="region-grid" class="region-grid"></div>
+</div>
+
+<div class="settings-panel" data-panel="couches" hidden>
+  <div class="settings-section">
+    <p class="settings-section-label">
+      Réflectivité
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-refl" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </p>
+    <div class="source-grid" id="grid-refl">
+      <div class="region-card" id="src-refl-rv">
+        <div class="region-name">RainViewer <span class="src-badge">par défaut</span></div>
+        <div class="region-sub">Agrégateur mondial · Nowcast 30 min inclus</div>
+      </div>
+      <div class="region-card" id="src-refl-dbzh">
+        <div class="region-name">OPERA DBZH</div>
+        <div class="region-sub">Données brutes EUMETNET · Europe · 5 min · 1 km</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <p class="settings-section-label">
+      Cumul
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-accr" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </p>
+    <div class="source-grid" id="grid-accr">
+      <div class="region-card" id="src-acrr-mf">
+        <div class="region-name">MF Cumul <span class="src-badge" id="mf-badge">…</span></div>
+        <div class="region-sub">Météo-France · France · 500 m · 5 min · clé API requise</div>
+      </div>
+      <div class="region-card" id="src-acrr-opera">
+        <div class="region-name">OPERA ACRR</div>
+        <div class="region-sub">EUMETNET · Europe · 2 km · 15 min</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <p class="settings-section-label">
+      RATE (taux de précipitation instantané)
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-rate" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </p>
+    <div class="region-sub">OPERA EUMETNET · Europe · 2 km · 15 min · aucune clé requise</div>
+    <p class="settings-section-label" style="margin-top:10px">
+      + Prévision PIAF (étend la chronologie 0-3h dans le futur)
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-piaf" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </p>
+    <div class="region-sub">Météo-France PIAF · France · 1 km · run toutes les 5 min</div>
+    <div class="region-sub vigilance-key-missing" id="piaf-key-missing" style="display:none">Clé API PIAF non configurée côté serveur — la chronologie s'arrête au direct.</div>
+  </div>
+
+  <div class="settings-section">
+    <p class="settings-section-label">
+      CAPE
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-cape" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </p>
+    <div class="region-sub">Indice de convection Météo-France AROME-PI (0.25°, run horaire, prévision 6h)</div>
+    <div class="region-sub vigilance-key-missing" id="cape-key-missing" style="display:none">Clé API AROME-PI non configurée côté serveur — fonctionnalité indisponible.</div>
+  </div>
+
+  <div class="settings-section">
+    <p class="settings-section-label">
+      Cisaillement (STP + EHI + Grêle)
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-shear" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </p>
+    <div class="region-sub">Potentiel de tornade (STP), rotation (EHI) et risque de grêle — Météo-France AROME-PI (0.025°, run horaire, prévision 6h par pas de 15 min)</div>
+    <div class="region-sub vigilance-key-missing" id="shear-key-missing" style="display:none">Clé API AROME-PI non configurée côté serveur — fonctionnalité indisponible.</div>
+  </div>
+</div>
+
+<div class="settings-panel" data-panel="alertes" hidden>
+  <div class="settings-section">
+    <p class="settings-section-label">
+      Alertes vigilance
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-vig-master" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </p>
+    <div class="region-sub">Récupère les vigilances Météo-France et affiche le bandeau/panneau sur le dashboard.</div>
+    <div class="region-sub vigilance-key-missing" id="vigilance-key-missing" style="display:none">Clé API vigilance non configurée côté serveur — fonctionnalité indisponible.</div>
+    <div class="vigilance-toggle-list" id="vigilance-toggle-list">
+      <div class="vigilance-toggle-row">
+        <span><button type="button" class="emoji-pick-btn" id="emoji-btn-1" data-pid="1">💨</button> Vent violent</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle-vig-1" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="vigilance-toggle-row">
+        <span><button type="button" class="emoji-pick-btn" id="emoji-btn-2" data-pid="2">🌧️</button> Pluie-inondation</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle-vig-2" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="vigilance-toggle-row">
+        <span><button type="button" class="emoji-pick-btn" id="emoji-btn-3" data-pid="3">⛈️</button> Orages</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle-vig-3" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="vigilance-toggle-row">
+        <span><button type="button" class="emoji-pick-btn" id="emoji-btn-4" data-pid="4">🏞️</button> Crues</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle-vig-4" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="vigilance-toggle-row">
+        <span><button type="button" class="emoji-pick-btn" id="emoji-btn-9" data-pid="9">🌊</button> Vagues-submersion</span>
+        <label class="toggle-switch"><input type="checkbox" id="toggle-vig-9" checked><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <p class="settings-section-label">Timeline radar</p>
+    <div class="region-sub">Fenêtre affichée sur la barre chronologique du radar, autour de maintenant.</div>
+    <div class="timeline-window-grid">
+      <label class="timeline-window-field">
+        <span>Passé (h)</span>
+        <input type="number" id="timeline-past-h" min="0.5" max="6" step="0.5" value="2">
+      </label>
+      <label class="timeline-window-field">
+        <span>Futur (h)</span>
+        <input type="number" id="timeline-future-h" min="1" max="12" step="0.5" value="6">
+      </label>
+    </div>
+  </div>
+</div>
+
+<div class="settings-panel" data-panel="theme" hidden>
+  <p class="settings-desc" style="margin-bottom:20px">
+    Couleur d'accent principale/secondaire et teinte du fond de l'interface.
+  </p>
+  <div class="region-grid" id="theme-grid">
+    <div class="region-card theme-card" data-theme-id="green">
+      <div class="theme-swatch"><span class="theme-dot theme-dot-primary"></span><span class="theme-dot theme-dot-secondary"></span></div>
+      <div class="region-name">Vert</div>
+      <div class="region-sub">Émeraude / or — thème par défaut</div>
+    </div>
+    <div class="region-card theme-card" data-theme-id="purple">
+      <div class="theme-swatch"><span class="theme-dot theme-dot-primary"></span><span class="theme-dot theme-dot-secondary"></span></div>
+      <div class="region-name">Violet</div>
+      <div class="region-sub">Violet / rose</div>
+    </div>
+    <div class="region-card theme-card" data-theme-id="blue">
+      <div class="theme-swatch"><span class="theme-dot theme-dot-primary"></span><span class="theme-dot theme-dot-secondary"></span></div>
+      <div class="region-name">Bleu</div>
+      <div class="region-sub">Cyan / orange</div>
+    </div>
+    <div class="region-card theme-card" data-theme-id="red">
+      <div class="theme-swatch"><span class="theme-dot theme-dot-primary"></span><span class="theme-dot theme-dot-secondary"></span></div>
+      <div class="region-name">Rouge</div>
+      <div class="region-sub">Corail / ambre</div>
+    </div>
+  </div>
+
+  <div class="settings-section" style="margin-top:28px">
+    <p class="settings-section-label">Logo</p>
+    <div class="region-sub" style="margin-bottom:14px">La marque animée du header et de l'onglet du navigateur — suit la couleur choisie ci-dessus.</div>
+    <div class="region-grid" id="logo-grid">
+      <div class="region-card logo-card" data-logo-id="entonnoir">
+        <div class="logo-preview"></div>
+        <div class="region-name">Tornade</div>
+      </div>
+      <div class="region-card logo-card" data-logo-id="balayage">
+        <div class="logo-preview"></div>
+        <div class="region-name">Radar balayage</div>
+      </div>
+      <div class="region-card logo-card" data-logo-id="badge">
+        <div class="logo-preview"></div>
+        <div class="region-name">Orage</div>
+      </div>
+      <div class="region-card logo-card" data-logo-id="echo">
+        <div class="logo-preview"></div>
+        <div class="region-name">Radar écho</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="settings-panel" data-panel="outils" hidden>
+  <p class="settings-section-label">
+    Activer la section « Accès rapide »
+    <label class="toggle-switch">
+      <input type="checkbox" id="toggle-tools-master" checked>
+      <span class="toggle-slider"></span>
+    </label>
+  </p>
+  <div class="region-sub" style="margin-bottom:16px">Les liens rapides affichés sous la carte, sur le dashboard.</div>
+
+  <div class="tools-manage-grid" id="tools-manage-grid"></div>
+
+  <div class="tools-manage-actions">
+    <button type="button" class="btn-action" id="tool-add-btn">+ Ajouter un outil</button>
+    <button type="button" class="btn-action" id="tools-reset-btn">↺ Réinitialiser aux valeurs par défaut</button>
+  </div>
+</div>
+
+<button id="save-btn" class="btn-save" disabled>Sauvegarder</button>
+
+<div class="modal tool-modal" id="tool-modal" hidden>
+  <div class="modal-backdrop tool-modal-backdrop"></div>
+  <div class="modal-panel tool-modal-panel">
+    <p class="settings-section-label">
+      <span id="tool-modal-title">Ajouter un outil</span>
+      <button type="button" class="modal-close" id="tool-modal-close" aria-label="Fermer">✕</button>
+    </p>
+    <label class="tool-field"><span>Nom</span><input type="text" id="tool-field-name" maxlength="40" placeholder="Keraunos"></label>
+    <label class="tool-field"><span>Description</span><input type="text" id="tool-field-desc" maxlength="120" placeholder="Radar, foudre, satellite…"></label>
+    <label class="tool-field"><span>URL</span><input type="url" id="tool-field-url" placeholder="https://…"></label>
+    <div class="tool-field-error" id="tool-field-error" hidden></div>
+    <button type="button" class="btn-save" id="tool-field-save" style="margin-top:6px">Enregistrer</button>
+  </div>
+</div>
+
+<div class="modal emoji-modal" id="emoji-modal" hidden>
+  <div class="modal-backdrop emoji-modal-backdrop"></div>
+  <div class="modal-panel emoji-modal-panel">
+    <p class="settings-section-label">
+      Choisir un emoji
+      <span>
+        <button type="button" class="emoji-modal-reset" id="emoji-modal-reset">↺ Défaut</button>
+        <button type="button" class="modal-close emoji-modal-close" id="emoji-modal-close" aria-label="Fermer">✕</button>
+      </span>
+    </p>
+    <emoji-picker id="emoji-picker" class="dark" locale="fr"
+      data-source="https://cdn.jsdelivr.net/npm/emoji-picker-element-data@1.8.0/fr/emojibase/data.json"></emoji-picker>
+  </div>
+</div>
+
+<script src="js/regions.js"></script>
+<script src="js/logos.js"></script>
+<script src="js/tools.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/sw-register.js"></script>
+</body>
+</html>

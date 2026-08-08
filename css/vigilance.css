@@ -1,0 +1,53 @@
+.vig-green  { background: #4ade80; }
+.vig-yellow { background: #facc15; }
+.vig-orange { background: var(--vig-orange); }
+.vig-red    { background: #ef4444; }
+
+/* ─── Vigilance banner — slides down over the radar map, same 10px inset as .map-overlay/.map-side-controls, ~1/5 of the map width ─── */
+.vigilance-banner-slot {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 700;
+  width: 20%;
+  min-width: 180px;
+  max-width: calc(100% - 20px);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.vigilance-banner {
+  pointer-events: auto;
+  cursor: pointer;
+  background: rgb(var(--panel-rgb) / 92%);
+  backdrop-filter: blur(3px);
+  border: 2px solid var(--border);
+  border-radius: 3px;
+  padding: 9px 12px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  line-height: 1.4;
+  transform: translateY(-140%);
+  transition: transform .4s ease;
+}
+
+.vigilance-banner.is-visible { transform: translateY(0); }
+
+.vigilance-banner.vig-yellow {
+  border-color: #facc15;
+  color: #facc15;
+}
+
+.vigilance-banner.vig-orange {
+  border-color: var(--vig-orange);
+  color: var(--vig-orange);
+}
+
+.vigilance-banner.vig-red {
+  border-color: #ef4444;
+  color: #ef4444;
+}

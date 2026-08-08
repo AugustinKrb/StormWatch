@@ -1,0 +1,3 @@
+---
+ignored:
+  - DL3008  # Pin apt packages to specific versions in Dockerfile

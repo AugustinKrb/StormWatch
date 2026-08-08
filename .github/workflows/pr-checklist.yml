@@ -1,0 +1,22 @@
+---
+name: PR checklist
+
+"on":
+  pull_request:
+    types: [opened, edited, synchronize]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    if: |
+      github.event.pull_request.user.login != 'github-actions[bot]' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    steps:
+      - uses: mheap/require-checklist-action@9c8100a52aa9726d4648e61aa92415f6c843c990  # v2
+        with:
+          requireChecklist: true

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0e14">
+<title>Poste de veille</title>
+<script>try { var t = localStorage.getItem('sw_theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<link rel="icon" id="favicon-link" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2240%22%20fill%3D%22%2347d7e0%22/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/logo.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/radar.css">
+<link rel="stylesheet" href="css/timeline.css">
+<link rel="stylesheet" href="css/lightning.css">
+<link rel="stylesheet" href="css/vigilance.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-velocity@1.9.2/dist/leaflet-velocity.min.css">
+</head>
+<body class="dashboard-body">
+
+<div id="init-banner" class="init-banner">Initialisation en cours…</div>
+
+<header>
+  <div class="header-left">
+    <div class="sweep" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="3"/><path class="logo-band1" d="M22 24 Q50 18 78 24 Q60 30 50 30 Q40 30 30 32" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path class="logo-band2" d="M28 38 Q50 34 72 38 Q58 43 50 43 Q42 43 34 44" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path class="logo-band3" d="M34 52 Q50 49 66 52 Q56 56 50 56 Q44 56 40 57" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path class="logo-band4" d="M40 65 Q50 63 60 65 Q54 68 50 68 Q46 68 44 69" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path class="logo-band5" d="M45 77 Q50 76 55 77" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+    <div>
+      <h1 id="region-name">—</h1>
+      <div class="subtitle" id="region-sub"></div>
+    </div>
+  </div>
+  <div class="header-right">
+    <button id="change-region-btn" class="btn-action">⚙ paramètres</button>
+    <div class="clock">
+      <span id="clock-time">--:--:--</span>
+      <span class="date" id="clock-date">—</span>
+    </div>
+  </div>
+</header>
+
+<div class="grid-main">
+
+  <section class="panel radar-shell" id="radar-shell">
+    <div class="panel-label">
+      <span><span class="live-dot"></span><span id="radar-category-label">Radar</span> — <span id="radar-source-label">RainViewer</span></span>
+    </div>
+    <div class="map-wrap">
+      <div id="radar-map"></div>
+
+      <div class="vigilance-banner-slot">
+        <div class="vigilance-banner" id="vigilance-banner"></div>
+      </div>
+
+      <div class="map-overlay" id="map-overlay">
+        <button class="overlay-collapse-btn" id="overlay-collapse-btn" title="Replier/déplier le panneau">‹</button>
+
+        <div class="overlay-body" id="overlay-body">
+          <div class="layer-switch layer-switch-live">
+            <button class="layer-btn" id="layer-refl" data-category="refl">Réflectivité</button>
+            <button class="layer-btn" id="layer-rate" data-category="rate">RATE</button>
+            <button class="layer-btn" id="layer-cumul" data-category="accr">Cumul</button>
+          </div>
+          <div class="layer-switch layer-switch-models">
+            <button class="layer-btn" id="layer-cape" data-category="cape">CAPE</button>
+            <button class="layer-btn" id="layer-hail" data-category="hail">Grêle</button>
+            <button class="layer-btn" id="layer-ehi" data-category="ehi">EHI</button>
+            <button class="layer-btn" id="layer-stp" data-category="stp">STP</button>
+          </div>
+
+          <button class="toggle-row" id="gps-btn">📍 <span>Position</span></button>
+          <button class="toggle-row" id="wind-btn">💨 <span>Vent</span></button>
+          <button class="toggle-row" id="obs-btn">🌡️ <span>Temp/Pression</span></button>
+          <button class="toggle-row" id="blitz-btn">⚡ <span>Foudre</span></button>
+          <div class="toggle-row-status" id="blitz-status-wrap" style="display:none">
+            <span class="blitz-dot wait" id="blitz-dot"></span><span id="blitz-label">connexion…</span>
+            &nbsp;·&nbsp;<span id="blitz-count">0 éclair · 30 min</span>
+          </div>
+
+          <div class="vigilance-filter-control">
+            <button class="toggle-row" id="vigilance-filter-btn">🚨 <span id="vigilance-filter-label">Vigilance : tous confondus</span></button>
+            <div class="vig-filter-menu" id="vigilance-filter-menu" style="display:none">
+              <button class="vig-filter-opt" data-phenomenon="all" data-label="tous confondus">Tous confondus</button>
+              <button class="vig-filter-opt" data-phenomenon="1" data-label="vent violent">Vent violent</button>
+              <button class="vig-filter-opt" data-phenomenon="2" data-label="pluie-inondation">Pluie-inondation</button>
+              <button class="vig-filter-opt" data-phenomenon="3" data-label="orages">Orages</button>
+              <button class="vig-filter-opt" data-phenomenon="4" data-label="crues">Crues</button>
+              <button class="vig-filter-opt" data-phenomenon="9" data-label="vagues-submersion">Vagues-submersion</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="map-side-controls">
+        <button id="fullscreen-btn" class="map-fab" title="Plein écran">⛶</button>
+        <div class="basemap-control">
+          <button id="basemap-btn" class="map-fab" title="Fond de carte">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 12 12 17 22 12"></polyline>
+              <polyline points="2 17 12 22 22 17"></polyline>
+            </svg>
+          </button>
+          <div class="basemap-menu" id="basemap-menu" style="display:none">
+            <button class="basemap-opt" data-basemap="dark">Dark</button>
+            <button class="basemap-opt" data-basemap="voyager">Voyager (labels FR)</button>
+            <button class="basemap-opt" data-basemap="osm">OSM Standard</button>
+          </div>
+        </div>
+        <button id="doc-btn" class="map-fab" title="Documentation des calques">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
+        <button id="autofollow-btn" class="map-fab" title="Suivi auto de la position" style="display:none">🎯</button>
+      </div>
+
+      <div id="radar-legend" class="map-legend" style="display:none"></div>
+
+      <div id="dept-badges" class="dept-badges"></div>
+
+      <div class="radar-timeline">
+        <span id="frame-time" class="frame-time-display">chargement…</span>
+        <div class="timeline-track" id="timeline-track">
+          <div class="timeline-empty" id="timeline-empty-past"></div>
+          <div class="timeline-empty" id="timeline-empty-future"></div>
+          <div class="timeline-thumb" id="timeline-thumb" tabindex="0" role="slider"
+               aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"></div>
+        </div>
+        <div class="timeline-ticks" id="timeline-ticks"></div>
+        <div class="timeline-transport">
+          <button id="frame-prev-btn" class="timeline-step" title="Frame précédente">‹</button>
+          <button id="play-btn" class="timeline-play">▶</button>
+          <button id="frame-next-btn" class="timeline-step" title="Frame suivante">›</button>
+          <button id="live-btn" class="live-btn is-live">direct</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="radar-controls">
+      <span class="opacity-ctrl">
+        opacité
+        <input type="range" id="opacity-slider" min="20" max="90" step="5" value="60">
+        <span id="opacity-val">60%</span>
+      </span>
+    </div>
+  </section>
+
+  <section class="panel" id="tools-section">
+    <div class="panel-label"><span>Accès rapide</span><span>ouvre un nouvel onglet</span></div>
+    <div class="tools-grid" id="tools-grid"></div>
+  </section>
+</div>
+
+<footer>
+  <div class="footer-sources">
+    <span class="footer-sources-label">Sources des données</span>
+    <ul>
+      <li>Réflectivité, cumul, RATE (composite européen) — © <a href="https://www.eumetnet.eu/observations/opera-radar-animation/" target="_blank" rel="noopener">EUMETNET OPERA</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, données modifiées (reprojection, recolorisation)</li>
+      <li>Réflectivité, nowcast — données <a href="https://www.rainviewer.com" target="_blank" rel="noopener">RainViewer</a></li>
+      <li>CAPE, cisaillement (STP/EHI/grêle), cumul, prévision immédiate (PIAF), vigilance, vent — © <a href="https://meteofrance.com" target="_blank" rel="noopener">Météo-France</a>, <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/" target="_blank" rel="noopener">Licence Ouverte / Étalab 2.0</a></li>
+      <li>Foudre — <a href="https://www.blitzortung.org" target="_blank" rel="noopener">Blitzortung.org</a>, réseau communautaire, données à titre informatif uniquement (pas un système d'alerte officiel)</li>
+      <li>Fond de carte — © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, tuiles © <a href="https://carto.com/attributions/" target="_blank" rel="noopener">CARTO</a>, via <a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a></li>
+    </ul>
+  </div>
+</footer>
+
+<div class="modal doc-modal" id="doc-modal" hidden>
+  <div class="modal-backdrop doc-modal-backdrop"></div>
+  <div class="modal-panel doc-modal-panel">
+    <div class="doc-modal-header">
+      <span>Documentation des calques</span>
+      <button type="button" class="modal-close doc-modal-close" id="doc-modal-close" aria-label="Fermer">✕</button>
+    </div>
+    <div class="doc-tabs" id="doc-tabs" role="tablist">
+      <button class="doc-tab is-active" data-doc="refl" role="tab" aria-selected="true">Réflectivité</button>
+      <button class="doc-tab" data-doc="rate" role="tab" aria-selected="false">RATE</button>
+      <button class="doc-tab" data-doc="accr" role="tab" aria-selected="false">Cumul</button>
+      <button class="doc-tab" data-doc="cape" role="tab" aria-selected="false">CAPE</button>
+      <button class="doc-tab" data-doc="hail" role="tab" aria-selected="false">Grêle</button>
+      <button class="doc-tab" data-doc="ehi" role="tab" aria-selected="false">EHI</button>
+      <button class="doc-tab" data-doc="stp" role="tab" aria-selected="false">STP</button>
+      <button class="doc-tab" data-doc="wind" role="tab" aria-selected="false">Vent</button>
+      <button class="doc-tab" data-doc="obs" role="tab" aria-selected="false">Temp/Pression</button>
+      <button class="doc-tab" data-doc="lightning" role="tab" aria-selected="false">Foudre</button>
+      <button class="doc-tab" data-doc="vigilance" role="tab" aria-selected="false">Vigilance</button>
+    </div>
+    <div class="doc-panels" id="doc-panels">
+      <div class="doc-panel is-active" data-doc="refl">
+        <p class="doc-lead">Le radar envoie une impulsion et mesure l'énergie renvoyée par les gouttes de pluie, la grêle ou les flocons en suspension. Plus la cible est grosse, dense ou nombreuse, plus l'écho est fort. Cette énergie est convertie en dBZ, une échelle logarithmique : chaque palier de +10 dBZ correspond à un écho environ 10× plus fort.</p>
+        <h4>Comment le lire</h4>
+        <p>Sous 20 dBZ : bruine ou pluie faible. Entre 30 et 40 dBZ : pluie modérée à forte. Au-delà de 50 dBZ, on entre dans les intensités d'averses violentes voire de grêle — un noyau isolé très intense (55-60 dBZ+) niché dans une cellule est souvent le signe d'une poche de grêle.</p>
+        <h4>Pourquoi c'est utile en chasse</h4>
+        <p>C'est la couche de référence pour repérer une cellule, suivre sa forme (un écho en crochet est une signature classique de rotation/mésocyclone) et estimer son intensité en un coup d'œil. C'est la première chose à regarder pour savoir où se trouve l'orage.</p>
+        <h4>À savoir</h4>
+        <p>Le radar mesure ce qui est en l'air, pas ce qui touche le sol — un écho fort en altitude n'implique pas forcément une pluie forte au sol (évaporation sous la base du nuage, "virga"). Et plus on est loin du radar, plus il "voit" haut dans le nuage (courbure de la Terre), ce qui peut sous-estimer l'intensité réelle au sol à longue distance.</p>
+      </div>
+      <div class="doc-panel" data-doc="rate">
+        <p class="doc-lead">Le taux de précipitation à l'instant présent — "si ça tombait à ce rythme pendant une heure entière, il tomberait X mm". Une dérivée instantanée, là où le Cumul est une intégrale dans le temps.</p>
+        <h4>Comment le lire</h4>
+        <p>Sous 2-5 mm/h : pluie faible à modérée. Entre 10 et 30 mm/h : pluie forte, typique d'un orage actif. Au-delà de 50-80 mm/h : intensités "diluviennes", souvent associées à des cellules à fort contenu en eau ou à un cœur convectif très actif.</p>
+        <h4>Pourquoi c'est utile en chasse</h4>
+        <p>Contrairement au Cumul (qui regarde en arrière), RATE regarde l'instant présent et, grâce à la prévision PIAF, jusqu'à 3h dans le futur — utile pour savoir si la cellule que vous suivez monte en intensité ou retombe, et anticiper où elle ira.</p>
+        <h4>À savoir</h4>
+        <p>PIAF est une prévision à très court terme (nowcasting), fiable sur les 30-60 premières minutes mais qui se dégrade vite au-delà — à ne pas confondre avec une vraie prévision de modèle.</p>
+      </div>
+      <div class="doc-panel" data-doc="accr">
+        <p class="doc-lead">La quantité de pluie tombée, additionnée sur une fenêtre de temps — contrairement à la réflectivité qui montre une intensité instantanée. 1 mm de cumul = 1 litre d'eau par m².</p>
+        <h4>Comment le lire</h4>
+        <p>Quelques mm en cumul, rien d'alarmant. Au-delà de 30-50 mm sur une zone restreinte, on entre dans le territoire des inondations éclair (crues soudaines), surtout si le sol est déjà saturé ou si le relief canalise l'eau (vallées encaissées, zones urbaines imperméabilisées).</p>
+        <h4>Pourquoi c'est utile en chasse</h4>
+        <p>Un orage peut sembler impressionnant en réflectivité sans déverser beaucoup d'eau (s'il se déplace vite), ou au contraire un système lent peut cumuler des quantités énormes sur un même point en peu de temps. C'est la couche à regarder pour évaluer le risque de crue soudaine, pas le risque orage lui-même.</p>
+        <h4>À savoir</h4>
+        <p>Le radar sous-estime souvent le cumul en montagne (masquage du faisceau par le relief) ou lors de fortes intensités (atténuation du signal dans une pluie très dense) — le cumul réel au sol peut être supérieur à ce qu'affiche la carte.</p>
+      </div>
+      <div class="doc-panel" data-doc="cape">
+        <p class="doc-lead">L'énergie potentielle que possède une parcelle d'air si elle est soulevée en altitude, en supposant qu'elle continue de monter toute seule. C'est le carburant thermodynamique de la convection — sans CAPE, pas d'orage, quel que soit le reste.</p>
+        <h4>Comment le lire</h4>
+        <p>Sous 500 J/kg : instabilité faible, orages peu probables ou peu vigoureux. Entre 1000 et 2500 J/kg : instabilité marquée, orages capables de fortes rafales/grêle. Au-delà de 3000 J/kg (rare en France, plus fréquent aux États-Unis) : atmosphère extrêmement chargée, associée aux orages les plus violents.</p>
+        <h4>Pourquoi c'est utile en chasse</h4>
+        <p>C'est souvent la première carte qu'on regarde avant de partir — elle indique où l'atmosphère a le potentiel d'"exploser" en orage si un déclencheur (front, relief, convergence de vent) vient soulever l'air.</p>
+        <h4>À savoir</h4>
+        <p>Un fort CAPE sans cisaillement de vent (voir STP/EHI) donne des orages "pulsatoires" — violents mais brefs et désorganisés — pas les orages organisés/tournants qui produisent les phénomènes les plus dangereux. Le CAPE seul ne suffit jamais à juger le potentiel réel d'une journée.</p>
+      </div>
+      <div class="doc-panel" data-doc="hail">
+        <p class="doc-lead">Le diagnostic de grêle d'AROME-PI, calculé à partir du graupel intégré sur la verticale par le modèle — une estimation de risque, pas une mesure de taille de grêlon.</p>
+        <h4>Comment le lire</h4>
+        <p>Sous 5 : rien de notable. Entre 10 et 20 : risque de grêle réel, à surveiller. Au-delà de 25 : parmi les configurations les plus intenses, grêlons potentiellement gros.</p>
+        <h4>Pourquoi c'est utile en chasse</h4>
+        <p>La réflectivité seule distingue mal une grosse averse d'un cœur de grêle — ce diagnostic, basé sur la microphysique du modèle plutôt que sur l'écho radar, donne une indication directe, en complément d'un cœur radar intense (55+ dBZ).</p>
+        <h4>À savoir</h4>
+        <p>Comme pour les indices convectifs, mieux vaut suivre la tendance (une valeur qui monte sur une zone, un cœur qui se maintient) que se fier à la valeur absolue — sans correspondance publiée avec un diamètre de grêlon, impossible de dire qu'un 30 tombera plus gros qu'un 20.</p>
+      </div>
+      <div class="doc-panel" data-doc="ehi">
+        <p class="doc-lead">L'Energy Helicity Index combine le CAPE et l'hélicité 0-3 km (la rotation potentielle de l'air près du sol). Contrairement au STP, il ne prend pas en compte le cisaillement profond ni le LCL — un indicateur plus simple, centré sur le potentiel de rotation d'un orage (mésocyclone), pas spécifiquement sur la tornade.</p>
+        <h4>Comment le lire</h4>
+        <p>Sous 1 : rotation faible ou nulle probable. Entre 1 et 2 : rotation modérée, une supercellule peu organisée est possible. Entre 2 et 3 : potentiel de rotation net. Au-delà de 3-5 : potentiel de mésocyclone fort, orages supercellulaires probables si un déclencheur est présent.</p>
+        <h4>Pourquoi c'est utile en chasse</h4>
+        <p>Complète le STP — un orage peut avoir un EHI élevé (fort potentiel de rotation) sans forcément atteindre le seuil de tornade significative du STP. Utile pour repérer les zones où une supercellule organisée peut se former, même sans tornade à la clé.</p>
+        <h4>À savoir</h4>
+        <p>Comme le STP, c'est un indice calibré sur des statistiques nord-américaines — en contexte français, mieux vaut suivre la tendance (un EHI qui monte sur une zone) que se fier à la valeur absolue.</p>
+      </div>
+      <div class="doc-panel" data-doc="stp">
+        <p class="doc-lead">Le Significant Tornado Parameter combine en une seule formule le CAPE, le cisaillement de vent entre la surface et 6 km, l'hélicité (la tendance de l'air à tourner sur lui-même près du sol) et la hauteur de la base des nuages. C'est un indice statistique, pas une mesure physique — calibré en confrontant la formule à des milliers de cas réels de tornades aux États-Unis.</p>
+        <h4>Comment le lire</h4>
+        <p>Sous 0.5 : environnement peu favorable à une tornade significative. Autour de 1 : seuil à partir duquel les tornades EF2+ deviennent statistiquement possibles. Entre 2 et 4 : environnement franchement favorable. Au-delà de 4-8 : configurations rares associées aux tornades les plus violentes (typiquement Tornado Alley, très rare en France).</p>
+        <h4>Pourquoi c'est utile en chasse</h4>
+        <p>C'est l'indice le plus synthétique pour juger "est-ce qu'aujourd'hui, quelque part sur ma zone, les ingrédients d'une tornade significative sont réunis ?" — sans avoir à combiner CAPE, cisaillement et hélicité à la main.</p>
+        <h4>À savoir</h4>
+        <p>STP a été calibré sur le climat américain — en France, où l'instabilité et le cisaillement sont structurellement plus faibles, mieux vaut interpréter les valeurs à la baisse : un STP de 1 en France dans une configuration orageuse organisée est déjà un signal à prendre très au sérieux, alors qu'aux États-Unis ce serait presque anodin.</p>
+      </div>
+      <div class="doc-panel" data-doc="wind">
+        <p class="doc-lead">Une grille de vitesse et de direction du vent au sol, obtenue par interpolation entre les mesures réelles des stations météo — pas un modèle, une vraie observation de terrain.</p>
+        <h4>Comment le lire</h4>
+        <p>Repérez les zones de convergence (deux flux de vent qui se rencontrent) — elles forcent l'air à monter et peuvent déclencher ou renforcer la convection. Une rotation brutale de direction associée à un coup de vent soudain (rafale descendante, "gust front") précède souvent de quelques minutes l'arrivée d'un orage.</p>
+        <h4>Pourquoi c'est utile en chasse</h4>
+        <p>Contrairement aux couches de modèle (CAPE/STP/EHI), c'est une observation directe du terrain — utile pour confirmer en direct qu'un front orageux approche, ou repérer une ligne de convergence qui pourrait initier un nouvel orage.</p>
+        <h4>À savoir</h4>
+        <p>L'interpolation entre stations lisse les phénomènes très locaux — une rafale descendante peut être ponctuelle et passer entre deux stations sans être bien captée.</p>
+      </div>
+      <div class="doc-panel" data-doc="obs">
+        <p class="doc-lead">La température et la pression réduite au niveau de la mer, mesurées directement par les stations synoptiques de Météo-France — des points de mesure réels, pas une grille interpolée comme pour le vent.</p>
+        <h4>Comment le lire</h4>
+        <p>Chaque étiquette affiche "température · pression" pour une station donnée (ex. "25.7°C · 1020hPa"). C'est la tendance de la pression qui compte le plus : une chute rapide sur une zone annonce souvent l'arrivée d'un système actif ou d'un front, bien avant que le radar ne montre quoi que ce soit.</p>
+        <h4>Pourquoi c'est utile en chasse</h4>
+        <p>La pression est un signal précurseur — elle bouge avant que la convection ne soit visible au radar. La température, elle, permet de repérer les frontières thermiques (front froid, brise de mer/terre) le long desquelles les orages ont tendance à s'initier.</p>
+        <h4>À savoir</h4>
+        <p>Le réseau synoptique est clairsemé (~210 stations sur toute la France, très inégalement réparties) — une chute de pression très localisée sous une cellule orageuse, ou un coup de vent descendant (gust front), peut très bien se produire entre deux stations sans qu'aucune ne le capte. Comme pour le vent, c'est un indicateur d'ambiance générale sur votre zone, pas une garantie de détecter un phénomène ponctuel.</p>
+      </div>
+      <div class="doc-panel" data-doc="lightning">
+        <p class="doc-lead">La détection en temps quasi réel des décharges électriques (impacts nuage-sol et intra-nuageux), localisées par triangulation entre plusieurs capteurs du réseau.</p>
+        <h4>Comment le lire</h4>
+        <p>La densité d'impacts sur une zone reflète l'activité électrique de la cellule — une hausse brutale de la fréquence des éclairs précède souvent de quelques minutes une intensification de l'orage (rafales, grêle). La polarité positive est généralement associée aux orages les plus intenses/organisés.</p>
+        <h4>Pourquoi c'est utile en chasse</h4>
+        <p>C'est la couche la plus "temps réel" de toutes — utile pour suivre une cellule à la minute près et repérer les signes avant-coureurs d'intensification, en complément du radar qui rafraîchit moins souvent.</p>
+        <h4>À savoir</h4>
+        <p>Le réseau est communautaire (capteurs bénévoles), avec une précision et une couverture qui dépendent de la densité de capteurs dans la zone — moins fiable en zone isolée que les réseaux professionnels.</p>
+      </div>
+      <div class="doc-panel" data-doc="vigilance">
+        <p class="doc-lead">Les contours des départements de votre région, colorés selon le niveau de vigilance Météo-France en cours (vert/jaune/orange/rouge) — un aperçu spatial, en complément des alertes et des badges déjà affichés sur la carte.</p>
+        <h4>Comment le lire</h4>
+        <p>Par défaut, la couleur d'un contour reflète le pire phénomène en cours pour ce département. Le sélecteur "Vigilance" dans le panneau permet de filtrer sur un phénomène précis (orages, pluie-inondation, vent violent, crues, vagues-submersion) plutôt que "tous confondus".</p>
+        <h4>Pourquoi c'est utile en chasse</h4>
+        <p>Utile en un coup d'œil quand un système traverse plusieurs départements de votre région — par exemple pour voir si l'orage que vous suivez arrive d'un département déjà classé orange, sans avoir à ouvrir le bulletin complet.</p>
+        <h4>À savoir</h4>
+        <p>Seuls les départements de la région sélectionnée sont affichés, pas la France entière. Et seuls 5 phénomènes pertinents pour la chasse comptent dans la coloration (vent violent, pluie-inondation, orages, crues, vagues-submersion) — canicule, grand froid, neige-verglas et avalanches sont volontairement ignorés.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://unpkg.com/leaflet-velocity@1.9.2/dist/leaflet-velocity.min.js"></script>
+<script src="js/logos.js"></script>
+<script src="js/tools.js"></script>
+<script src="js/sw-register.js"></script>
+<script>
+  (function () {
+    var logo = localStorage.getItem('sw_logo') || 'entonnoir';
+    if (logo !== 'entonnoir') applyLogo(logo);
+    var accent = getComputedStyle(document.documentElement).getPropertyValue('--cyan').trim();
+    applyFavicon(logo, accent);
+
+    var tools = DEFAULT_TOOLS;
+    try { var stored = JSON.parse(localStorage.getItem('sw_tools') || 'null'); if (stored) tools = stored; } catch (e) {}
+    var toolsEnabled = localStorage.getItem('sw_tools_enabled');
+    renderTools(tools, toolsEnabled === null ? true : toolsEnabled === 'true');
+  }());
+</script>
+<script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

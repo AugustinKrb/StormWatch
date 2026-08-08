@@ -1,0 +1,180 @@
+/* ─── Radar timeline — floats over the bottom-center of the map, same inset/backing
+   convention as .map-overlay/.map-side-controls, sized like .vigilance-banner-slot
+   but wider since it needs room for the ruler ticks ─── */
+.radar-timeline {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  z-index: 650;
+  width: 46%;
+  min-width: 460px;
+  max-width: calc(100% - 20px);
+  background: rgb(var(--panel-rgb) / 88%);
+  backdrop-filter: blur(3px);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 10px;
+}
+
+.timeline-transport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.timeline-play,
+.timeline-step {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--cyan);
+  font-size: 13px;
+  width: 30px; height: 30px;
+  border-radius: 2px;
+  cursor: pointer;
+  flex: none;
+  transition: border-color .15s;
+}
+
+.timeline-play:hover,
+.timeline-step:hover { border-color: var(--cyan); }
+
+/* Loading/error placeholder only — cleared once a frame is showing, collapses the line away */
+.frame-time-display {
+  display: block;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--amber);
+  letter-spacing: .04em;
+  margin-bottom: 8px;
+}
+
+.frame-time-display:empty {
+  display: none;
+}
+
+.live-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+  flex: none;
+}
+
+.live-btn:hover {
+  border-color: var(--cyan);
+  color: var(--text);
+}
+
+.live-btn.is-live {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.timeline-track {
+  position: relative;
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.timeline-empty {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 2px;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    45deg, rgb(255 255 255 / 5%), rgb(255 255 255 / 5%) 4px, transparent 4px, transparent 8px
+  );
+}
+
+.timeline-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid var(--bg);
+  transform: translate(-50%, -50%);
+  cursor: grab;
+}
+.timeline-thumb:active { cursor: grabbing; }
+.timeline-track.is-disabled { cursor: not-allowed; }
+
+.timeline-track.is-disabled .timeline-thumb {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.timeline-ticks {
+  position: relative;
+  height: 20px;
+  margin-top: 3px;
+  padding: 0 6px;
+}
+
+.t-tick {
+  position: absolute;
+  top: 0;
+  width: 2px; height: 7px;
+  background: var(--text-dim);
+  transform: translateX(-50%);
+}
+
+.t-tick.t-now {
+  background: var(--cyan);
+  height: 10px;
+  width: 2px;
+}
+
+/* Finer-than-grid real data point (e.g. dbzh 5 min between the fixed 10 min marks) */
+.t-tick.t-sub {
+  width: 1px;
+  height: 4px;
+  top: 1px;
+  opacity: .45;
+}
+
+/* Unlabeled in-between grid mark (e.g. cumul's :x5 ticks between the labeled :x0 tens) */
+.t-tick.t-grid.t-minor {
+  height: 4px;
+  top: 1px;
+  opacity: .5;
+}
+
+/* Actual wall-clock time, shown only when it outpaces a delayed source's live frame */
+.t-tick.t-realnow {
+  background: transparent;
+  border-left: 1px dashed var(--text-dim);
+  width: 0;
+  height: 10px;
+  opacity: .6;
+}
+
+.t-label {
+  position: absolute;
+  top: 7px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.t-label.t-now-label {
+  color: var(--cyan);
+  font-weight: 600;
+}

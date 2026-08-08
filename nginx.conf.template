@@ -1,0 +1,46 @@
+server {
+    listen ${NGINX_PORT};
+    root /app;
+    server_tokens off;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Frame-Options DENY;
+
+    location ~ ^/frames/(?<frame_file>[^/]+/[^/]+\.png)$ {
+        alias /app/frames/$frame_file;
+        add_header Cache-Control "no-cache";
+    }
+
+    # SSE lightning — long-lived connection, no buffering
+    location /api/lightning/ {
+        proxy_pass             http://127.0.0.1:${PORT};
+        proxy_read_timeout     3600s;
+        proxy_set_header       Host $host;
+        proxy_buffering        off;
+        proxy_cache            off;
+        proxy_set_header       Connection '';
+        chunked_transfer_encoding on;
+    }
+
+    # SSE data-ready events (wind/vigilance/cape/...) — same treatment as lightning above
+    location /api/events/ {
+        proxy_pass             http://127.0.0.1:${PORT};
+        proxy_read_timeout     3600s;
+        proxy_set_header       Host $host;
+        proxy_buffering        off;
+        proxy_cache            off;
+        proxy_set_header       Connection '';
+        chunked_transfer_encoding on;
+    }
+
+    # Python API (Flask, internal to the container)
+    location /api/ {
+        proxy_pass         http://127.0.0.1:${PORT};
+        proxy_read_timeout 30s;
+        proxy_set_header   Host $host;
+    }
+
+    # Static frontend (HTML/CSS/JS)
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
