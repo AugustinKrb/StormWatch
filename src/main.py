@@ -92,14 +92,15 @@ def _startup() -> None:
     scheduler.start()
 
 
-if __name__ == "__main__":
-    lightning.start()
-    threading.Thread(target=_startup, daemon=True).start()
+lightning.start()
+threading.Thread(target=_startup, daemon=True).start()
 
-    log.info(
-        "Server on %s:%d — sources: OPERA DBZH+ACRR+RATE%s",
-        config.HOST,
-        config.PORT,
-        " + MF accumulation" if config.MF_RADAR_API_KEY else "",
-    )
+log.info(
+    "Server on %s:%d — sources: OPERA DBZH+ACRR+RATE%s",
+    config.HOST,
+    config.PORT,
+    " + MF accumulation" if config.MF_RADAR_API_KEY else "",
+)
+
+if __name__ == "__main__":
     app.run(host=config.HOST, port=config.PORT, threaded=True)
