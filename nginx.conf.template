@@ -32,6 +32,11 @@ server {
         chunked_transfer_encoding on;
     }
 
+    location /health {
+        proxy_pass         http://127.0.0.1:${PORT}/health;
+        proxy_set_header   Host $host;
+    }
+
     # Python API (Flask, internal to the container)
     location /api/ {
         proxy_pass         http://127.0.0.1:${PORT};
