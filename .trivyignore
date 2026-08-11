@@ -26,6 +26,7 @@ CVE-2026-54369 exp:2026-09-08 # HIGH fix_deferred - libacl1
 CVE-2026-56408 exp:2026-09-08 # HIGH affected - libexpat1
 CVE-2026-57432 exp:2026-09-08 # HIGH affected - perl-base
 CVE-2026-57433 exp:2026-09-08 # CRITICAL affected - perl-base
+CVE-2026-58050 exp:2026-09-10 # HIGH affected - libssh2-1
 CVE-2026-60005 exp:2026-09-08 # HIGH affected - nginx,nginx-common
 CVE-2026-6276 exp:2026-09-08 # HIGH affected - curl,libcurl4
 CVE-2026-7210 exp:2026-09-08 # HIGH affected - libpython3.11-minimal,libpython3.11-stdlib,python3.11,python3.11-minimal

@@ -31,9 +31,11 @@ ENV PATH="/app/.venv/bin:$PATH" \
     NGINX_PORT=8080
 
 # Non-root: nginx.conf.template's ${NGINX_PORT} is >1024 so no bind capability is needed.
-RUN mkdir -p /app/frames /var/log/supervisor \
+RUN mkdir -p /app/frames \
     && useradd -u 1000 -d /app -s /usr/sbin/nologin stormwatch \
-    && chown -R stormwatch:stormwatch /app /var/lib/nginx /var/log/nginx /var/log/supervisor /run /etc/nginx/sites-enabled \
+    && ln -sf /dev/stdout /var/log/nginx/access.log \
+    && ln -sf /dev/stderr /var/log/nginx/error.log \
+    && chown -R stormwatch:stormwatch /app /var/lib/nginx /run /etc/nginx/sites-enabled \
     && sed -i '/^user www-data;/d' /etc/nginx/nginx.conf \
     && rm -f /etc/nginx/sites-enabled/default
 
