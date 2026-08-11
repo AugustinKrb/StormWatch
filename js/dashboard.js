@@ -13,7 +13,7 @@ import { onEvent } from './events.js';
   try { region = JSON.parse(localStorage.getItem('sw_region') || 'null'); } catch {}
   if (!region || !region.depts) { location.replace('settings.html'); return; }
 
-  document.title = 'Poste de veille — ' + region.name;
+  document.title = 'StormWatch — ' + region.name;
   document.getElementById('region-name').textContent = region.name;
   document.getElementById('region-sub').textContent = region.sublabel;
 
