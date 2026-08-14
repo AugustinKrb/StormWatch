@@ -51,11 +51,13 @@ def _startup() -> None:
         _init_acrr,
         _init_rate,
         _init_mf,
-        jobs.job_wind,
-        jobs.job_cape,
-        jobs.job_shear,
         jobs.job_rainviewer,
     ]
+    if config.MF_PACKAGE_OBS_API_KEY:
+        inits.append(jobs.job_wind)
+    if config.MF_AROMEPI_API_KEY:
+        inits.append(jobs.job_cape)
+        inits.append(jobs.job_shear)
     if config.MF_VIGILANCE_KEY:
         inits.append(jobs.job_vigilance)
     if config.MF_PIAF_API_KEY:
@@ -77,11 +79,13 @@ def _startup() -> None:
     if config.MF_RADAR_API_KEY:
         scheduler.add_job(jobs.job_mf_acrr, "cron", minute="*/5", second=30)
     # MF station obs refresh every 6 min — poll at the same cadence as the other live sources.
-    scheduler.add_job(jobs.job_wind, "interval", seconds=config.FETCH_INTERVAL_SEC)
-    # AROME-PI runs hourly, published ~17-20 min in (measured live) — :22 catches it with margin.
-    scheduler.add_job(jobs.job_cape, "cron", minute=22)
-    # Same AROME-PI run, offset a few minutes so both crons don't hit MF at the same second.
-    scheduler.add_job(jobs.job_shear, "cron", minute=25)
+    if config.MF_PACKAGE_OBS_API_KEY:
+        scheduler.add_job(jobs.job_wind, "interval", seconds=config.FETCH_INTERVAL_SEC)
+    if config.MF_AROMEPI_API_KEY:
+        # AROME-PI runs hourly, published ~17-20 min in (measured live) — :22 catches it with margin
+        scheduler.add_job(jobs.job_cape, "cron", minute=22)
+        # Same AROME-PI run, offset a few minutes so both crons don't hit MF at the same second.
+        scheduler.add_job(jobs.job_shear, "cron", minute=25)
     # PIAF reruns every 5 min, but 8 downloads/poll (~14MB each) is too heavy for that cadence.
     if config.MF_PIAF_API_KEY:
         scheduler.add_job(jobs.job_piaf, "cron", minute="*/15", second=15)
