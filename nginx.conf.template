@@ -44,6 +44,10 @@ server {
         proxy_set_header   Host $host;
     }
 
+    location = /favicon.ico {
+        return 204;
+    }
+
     # Static frontend (HTML/CSS/JS)
     location / {
         try_files $uri $uri/ /index.html;
