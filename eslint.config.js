@@ -28,7 +28,6 @@ export default [
         STORM_LOGOS: 'readonly',
         STORM_LOGO_IDS: 'readonly',
         applyLogo: 'readonly',
-        applyFavicon: 'readonly',
       },
     },
   },

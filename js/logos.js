@@ -1,7 +1,7 @@
 // The 4 logo marks available in settings — animated SVG injected into .sweep containers.
 // Ring/crosshair strokes are thickened vs. the original mockup so they survive down to a
 // 16px favicon (thin single-px strokes disappear at that size; verified by rendering both).
-/* exported STORM_LOGOS, STORM_LOGO_IDS, applyLogo, applyFavicon */
+/* exported STORM_LOGOS, STORM_LOGO_IDS, applyLogo */
 var STORM_LOGOS = {
   balayage: {
     label: 'Radar balayage',
@@ -68,13 +68,4 @@ var STORM_LOGO_IDS = ['entonnoir', 'balayage', 'badge', 'echo'];
 function applyLogo(id) {
   var logo = STORM_LOGOS[id] || STORM_LOGOS.entonnoir;
   document.querySelectorAll('.sweep').forEach(function (el) { el.innerHTML = logo.svg; });
-}
-
-// data: URI for the favicon — static (no animation classes) since browser tabs render favicons
-// as a fixed frame, and swapping the color lets it follow the current accent like the header mark.
-function applyFavicon(id, color) {
-  var logo = STORM_LOGOS[id] || STORM_LOGOS.entonnoir;
-  var svg = logo.svg.replace('<svg ', '<svg style="color:' + color + '" ');
-  var link = document.getElementById('favicon-link');
-  if (link) link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
 }

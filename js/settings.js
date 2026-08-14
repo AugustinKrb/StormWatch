@@ -151,7 +151,6 @@
     document.documentElement.dataset.theme = themePref;
     localStorage.setItem(LS_KEYS.theme, themePref);
     renderThemeCards();
-    applyFavicon(logoPref, getComputedStyle(document.documentElement).getPropertyValue('--cyan').trim());
   });
   renderThemeCards();
 
@@ -165,7 +164,6 @@
       document.querySelector('.logo-card[data-logo-id="' + id + '"]').classList.toggle('selected', logoPref === id);
     });
     applyLogo(logoPref);
-    applyFavicon(logoPref, getComputedStyle(document.documentElement).getPropertyValue('--cyan').trim());
   }
   document.getElementById('logo-grid').addEventListener('click', function (e) {
     var card = e.target.closest('.logo-card');
