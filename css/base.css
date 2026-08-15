@@ -64,6 +64,7 @@ html, body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
+  text-size-adjust: 100%;
 }
 
 /* ─── Panel with corner accents ─── */

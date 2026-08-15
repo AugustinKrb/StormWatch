@@ -125,21 +125,26 @@
 
       <div id="dept-badges" class="dept-badges"></div>
 
-      <div class="radar-timeline">
-        <span id="frame-time" class="frame-time-display">chargement…</span>
-        <div class="timeline-track" id="timeline-track">
-          <div class="timeline-empty" id="timeline-empty-past"></div>
-          <div class="timeline-empty" id="timeline-empty-future"></div>
-          <div class="timeline-thumb" id="timeline-thumb" tabindex="0" role="slider"
-               aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"></div>
+      <div class="radar-timeline" id="radar-timeline">
+        <div class="timeline-body">
+          <span id="frame-time" class="frame-time-display">chargement…</span>
+          <div class="timeline-track" id="timeline-track">
+            <div class="timeline-empty" id="timeline-empty-past"></div>
+            <div class="timeline-empty" id="timeline-empty-future"></div>
+            <div class="timeline-thumb" id="timeline-thumb" tabindex="0" role="slider"
+                 aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"></div>
+          </div>
+          <div class="timeline-ticks" id="timeline-ticks"></div>
+          <div class="timeline-transport">
+            <button id="frame-prev-btn" class="timeline-step" title="Frame précédente">‹</button>
+            <button id="play-btn" class="timeline-play">▶</button>
+            <button id="frame-next-btn" class="timeline-step" title="Frame suivante">›</button>
+            <button id="live-btn" class="live-btn is-live">direct</button>
+          </div>
         </div>
-        <div class="timeline-ticks" id="timeline-ticks"></div>
-        <div class="timeline-transport">
-          <button id="frame-prev-btn" class="timeline-step" title="Frame précédente">‹</button>
-          <button id="play-btn" class="timeline-play">▶</button>
-          <button id="frame-next-btn" class="timeline-step" title="Frame suivante">›</button>
-          <button id="live-btn" class="live-btn is-live">direct</button>
-        </div>
+        <button class="timeline-collapse-btn" id="timeline-collapse-btn" title="Replier/déplier la timeline">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
       </div>
     </div>
 

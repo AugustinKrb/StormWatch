@@ -94,18 +94,40 @@ import { onEvent } from './events.js';
     document.getElementById('map-overlay').classList.toggle('is-collapsed');
   });
 
+  document.getElementById('timeline-collapse-btn').addEventListener('click', function () {
+    document.getElementById('radar-timeline').classList.toggle('is-collapsed');
+  });
+
   var radarShell = document.getElementById('radar-shell');
   var fullscreenBtn = document.getElementById('fullscreen-btn');
   fullscreenBtn.addEventListener('click', function () {
     if (document.fullscreenElement) document.exitFullscreen();
     else radarShell.requestFullscreen();
   });
+  function _syncControlInset() {
+    var zoomEl = document.querySelector('.leaflet-control-zoom');
+    var mapEl = document.getElementById('radar-map');
+    if (!zoomEl || !mapEl) return;
+    var inset = mapEl.getBoundingClientRect().bottom - zoomEl.getBoundingClientRect().bottom;
+    if (inset > 0) document.documentElement.style.setProperty('--leaflet-bottom-inset', inset + 'px');
+  }
+
   document.addEventListener('fullscreenchange', function () {
     var isFs = document.fullscreenElement === radarShell;
     fullscreenBtn.title = isFs ? 'Quitter le plein écran' : 'Plein écran';
     fullscreenBtn.classList.toggle('is-on', isFs);
-    setTimeout(function () { map.invalidateSize(); }, 50);
+    if (isFs && screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {});
+    else if (!isFs && screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+    setTimeout(function () { map.invalidateSize(); _syncControlInset(); }, 50);
   });
+
+  var resizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { map.invalidateSize(); _syncControlInset(); }, 150);
+  });
+
+  map.whenReady(function () { setTimeout(_syncControlInset, 50); });
 
   // Separate timeouts: lightning MQTT should connect almost instantly, job_cape/job_shear's initial fetch can take minutes.
   // Re-checks are event-driven (wind/cape/shear/lightning pushes), not polled — the two timeouts below are just a ceiling.
