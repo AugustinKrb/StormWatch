@@ -180,17 +180,23 @@ export function initTimeline(callbacks) {
       }
     }
 
-    // Ticks stay dense; only the text is dropped, and only on substantial overlap, not a light touch.
-    var MIN_OVERLAP_PX = 8;
-    function _overlapPx(a, b) {
-      return Math.min(a.right, b.right) - Math.max(a.left, b.left);
+    var MIN_GAP_PX = 5;
+    function _tooClose(a, b) {
+      return Math.min(a.right, b.right) - Math.max(a.left, b.left) > -MIN_GAP_PX;
     }
     var keyRects = [leftLabelEl, rightLabelEl].concat(liveLabelEl ? [liveLabelEl] : [])
       .map(function (el) { return el.getBoundingClientRect(); });
+    gridLabels = gridLabels.filter(function (label) {
+      var r = label.getBoundingClientRect();
+      var tooClose = keyRects.some(function (kr) { return _tooClose(r, kr); });
+      if (tooClose) container.removeChild(label);
+      return !tooClose;
+    });
+    var lastKeptRect = null;
     gridLabels.forEach(function (label) {
       var r = label.getBoundingClientRect();
-      var overlaps = keyRects.some(function (kr) { return _overlapPx(r, kr) > MIN_OVERLAP_PX; });
-      if (overlaps) container.removeChild(label);
+      if (lastKeptRect && _tooClose(r, lastKeptRect)) { container.removeChild(label); return; }
+      lastKeptRect = r;
     });
 
     // Real data points finer than the fixed grid — smaller/dimmer sub-ticks, no label.

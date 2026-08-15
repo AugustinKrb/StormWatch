@@ -18,8 +18,9 @@
   top: 10px;
   left: 10px;
   z-index: 650;
-  width: 220px;
+  width: max-content;
   max-width: calc(100% - 20px);
+  max-height: calc(100% - 20px);
   background: rgb(var(--panel-rgb) / 88%);
   backdrop-filter: blur(3px);
   border: 1px solid var(--border);
@@ -34,6 +35,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow-y: auto;
 }
 
 .map-overlay.is-collapsed .overlay-body > *:not(.layer-switch-live) {
@@ -61,8 +63,7 @@
 }
 
 .layer-btn {
-  flex: 1;
-  min-width: 0;
+  flex: 1 1 auto;
   background: var(--panel-2);
   border: 1px solid var(--border);
   color: var(--text-dim);
@@ -73,6 +74,7 @@
   border-radius: 2px;
   cursor: pointer;
   text-align: center;
+  white-space: nowrap;
 }
 
 .layer-btn:hover { border-color: var(--cyan); }
@@ -185,6 +187,10 @@
 }
 
 .map-fab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   width: 34px; height: 34px;
   background: rgb(var(--panel-rgb) / 88%);
   border: 1px solid var(--border);
@@ -243,20 +249,21 @@
   color: var(--cyan);
 }
 
-/* ─── Floating vertical color legend (over the map, right side, no backing panel) ─── */
+/* ─── Floating vertical color legend — top-anchored below .map-side-controls, capped height, so it never overlaps the button stack ─── */
 .map-legend {
   position: absolute;
   top: 50%;
   right: 6px;
   transform: translateY(-50%);
-  z-index: 650;
+  z-index: 640;
   width: 42px;
+  height: min(368px, calc(100% - 248px));
 }
 
 .map-legend-body {
   display: flex;
   gap: 6px;
-  height: 368px;
+  height: 100%;
 }
 
 .map-legend-gradient {
@@ -306,30 +313,15 @@
 
 .radar-shell:fullscreen #radar-map {
   height: 100%;
+  min-height: 0;
   max-height: none;
-}
-
-.radar-shell:fullscreen .map-overlay {
-  width: 230px;
-  font-size: 1.05em;
-}
-
-.radar-shell:fullscreen .map-legend {
-  width: 46px;
-  font-size: 1.1em;
-}
-
-.radar-shell:fullscreen .layer-btn,
-.radar-shell:fullscreen .toggle-row {
-  padding-block: 9px;
-  font-size: 13px;
 }
 
 /* ─── Small round department vigilance badges, bottom-left of the map ─── */
 .dept-badges {
   position: absolute;
   left: 10px;
-  bottom: 10px;
+  bottom: var(--leaflet-bottom-inset, 10px);
   z-index: 650;
   display: flex;
   flex-flow: row wrap;
@@ -350,21 +342,6 @@
 .dept-badge.vig-yellow { border-color: #facc15; }
 .dept-badge.vig-orange { border-color: var(--vig-orange); }
 .dept-badge.vig-red    { border-color: #ef4444; }
-
-.radar-shell:fullscreen .basemap-menu {
-  right: 50px;
-}
-
-.radar-shell:fullscreen .basemap-opt {
-  font-size: 13px;
-  padding: 8px 12px;
-}
-
-.radar-shell:fullscreen .map-fab {
-  width: 44px;
-  height: 44px;
-  font-size: 19px;
-}
 
 .radar-controls {
   display: flex; align-items: center; gap: 10px; margin-top: 10px;
@@ -489,4 +466,51 @@
 
 .leaflet-control-zoom a.leaflet-disabled {
   opacity: .35;
+}
+
+/* also matches on height so a short landscape phone gets it, not just a narrow portrait one */
+@media (width <= 480px), (height <= 520px) {
+  .layer-btn {
+    padding: 4px 2px;
+    font-size: 8.5px;
+  }
+
+  .toggle-row {
+    padding: 4px 6px;
+    font-size: 10px;
+    gap: 5px;
+  }
+
+  .toggle-row-status { font-size: 9px; }
+
+  .map-fab {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+
+  .dept-badge {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+
+  .map-legend {
+    width: 30px;
+    height: min(140px, calc(100% - 200px));
+  }
+
+  .map-legend-label,
+  .map-legend-unit {
+    font-size: 7px;
+  }
+
+  .map-legend-label:not(:first-child, :last-child) { display: none; }
+
+  .leaflet-control-zoom a {
+    width: 26px !important;
+    height: 26px !important;
+    line-height: 26px !important;
+    font-size: 14px;
+  }
 }
