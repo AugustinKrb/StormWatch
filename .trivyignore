@@ -12,6 +12,7 @@ CVE-2025-7458 exp:2026-09-08 # CRITICAL affected - libsqlite3-0
 CVE-2026-11940 exp:2026-09-08 # HIGH fix_deferred - libpython3.11-minimal,libpython3.11-stdlib,python3.11,python3.11-minimal
 CVE-2026-12064 exp:2026-09-08 # HIGH fix_deferred - curl,libcurl4
 CVE-2026-13221 exp:2026-09-08 # CRITICAL affected - perl-base
+CVE-2026-14456 exp:2026-09-18 # HIGH affected - libssl3,openssl
 CVE-2026-15308 exp:2026-09-08 # HIGH fix_deferred - libpython3.11-minimal,libpython3.11-stdlib,python3.11,python3.11-minimal
 CVE-2026-25210 exp:2026-09-08 # HIGH affected - libexpat1
 CVE-2026-3644 exp:2026-09-08 # HIGH affected - libpython3.11-minimal,libpython3.11-stdlib,python3.11,python3.11-minimal
