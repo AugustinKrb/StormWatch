@@ -22,6 +22,27 @@ run = "docker compose up --build"
 description = "Serve the MkDocs site locally with hot reload (http://127.0.0.1:8000)"
 run = "uv run --with 'mkdocs<2' --with 'mkdocs-material<10' mkdocs serve"
 
+[tasks.trivy-scan]
+description = "Scan the PR-check image with Trivy exactly like the failing CI gate. Usage: mise run trivy-scan [--all]"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+SHOW_SUPPRESSED=""
+if [[ "${1:-}" == "--all" ]]; then
+  SHOW_SUPPRESSED="--show-suppressed"
+fi
+
+docker build -t stormwatch:pr-check .
+docker run --rm \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v "$PWD":/workspace -w /workspace \
+  aquasec/trivy:0.70.0 image \
+  --severity CRITICAL,HIGH \
+  --format table \
+  $SHOW_SUPPRESSED \
+  stormwatch:pr-check
+"""
+
 [tasks.dockerhub-release]
 description = "Build a release tag from a clean checkout and push it to Docker Hub — run locally, no CI secret involved. Usage: mise run dockerhub-release v1.2.3"
 run = """

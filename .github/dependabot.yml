@@ -5,11 +5,19 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    groups:
+      python-dependencies:
+        dependency-type: production
+      python-dev-dependencies:
+        dependency-type: development
 
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    groups:
+      npm-dev-dependencies:
+        dependency-type: development
 
   - package-ecosystem: docker
     directory: /
@@ -20,3 +28,7 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
