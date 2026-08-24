@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/AugustinKrb/StormWatch/compare/v0.1.1...v0.1.2) (2026-08-24)
+
+
+### Bug Fixes
+
+* **ui:** mobile responsive ([#8](https://github.com/AugustinKrb/StormWatch/issues/8)) ([5a32eb0](https://github.com/AugustinKrb/StormWatch/commit/5a32eb05f0ee72336ed40616a77baca9bdfaf591))
+
 ## [0.1.1](https://github.com/AugustinKrb/StormWatch/compare/v0.1.0...v0.1.1) (2026-08-14)
 
 
