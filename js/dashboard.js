@@ -30,22 +30,29 @@ import { onEvent } from './events.js';
     .setView([region.lat, region.lon], region.zoom);
   map.zoomControl.setPosition('bottomright'); // top-left is taken by the overlay panel
 
-  var basemaps = {
-    dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
-      subdomains: 'abcd', maxZoom: 19,
-    }),
-    voyager: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?lang=fr', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
-      subdomains: 'abcd', maxZoom: 19,
-    }),
-    osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
+  // OpenFreeMap vector styles (no key, no quota) drawn by MapLibre GL as one non-interactive Leaflet layer.
+  var OFM_ATTR = '&copy; <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> ' +
+    '&copy; <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> ' +
+    'data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors';
+  function ofm(style) {
+    return L.maplibreGL({
+      style: 'https://tiles.openfreemap.org/styles/' + style,
       maxZoom: 19,
-    }),
+      attribution: OFM_ATTR,
+      attributionControl: { customAttribution: OFM_ATTR },
+    });
+  }
+
+  var basemaps = {
+    dark: ofm('dark'),
+    positron: ofm('positron'),
+    liberty: ofm('liberty'),
+    fiord: ofm('fiord'),
   };
+  var LEGACY_BASEMAP = { voyager: 'liberty', osm: 'positron' }; // migrate pre-OpenFreeMap choices
 
   var basemapId = localStorage.getItem('sw_basemap') || 'dark';
+  basemapId = LEGACY_BASEMAP[basemapId] || basemapId;
   if (!basemaps[basemapId]) basemapId = 'dark';
   basemaps[basemapId].addTo(map);
 

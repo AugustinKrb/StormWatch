@@ -12,6 +12,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.24.0/maplibre-gl.min.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/logo.css">
 <link rel="stylesheet" href="css/dashboard.css">
@@ -107,8 +108,9 @@
           </button>
           <div class="basemap-menu" id="basemap-menu" style="display:none">
             <button class="basemap-opt" data-basemap="dark">Dark</button>
-            <button class="basemap-opt" data-basemap="voyager">Voyager (labels FR)</button>
-            <button class="basemap-opt" data-basemap="osm">OSM Standard</button>
+            <button class="basemap-opt" data-basemap="positron">Positron</button>
+            <button class="basemap-opt" data-basemap="liberty">Liberty</button>
+            <button class="basemap-opt" data-basemap="fiord">Fiord</button>
           </div>
         </div>
         <button id="doc-btn" class="map-fab" title="Documentation des calques">
@@ -171,7 +173,7 @@
       <li>Réflectivité, nowcast — données <a href="https://www.rainviewer.com" target="_blank" rel="noopener">RainViewer</a></li>
       <li>CAPE, cisaillement (STP/EHI/grêle), cumul, prévision immédiate (PIAF), vigilance, vent — © <a href="https://meteofrance.com" target="_blank" rel="noopener">Météo-France</a>, <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/" target="_blank" rel="noopener">Licence Ouverte / Étalab 2.0</a></li>
       <li>Foudre — <a href="https://www.blitzortung.org" target="_blank" rel="noopener">Blitzortung.org</a>, réseau communautaire, données à titre informatif uniquement (pas un système d'alerte officiel)</li>
-      <li>Fond de carte — © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, tuiles © <a href="https://carto.com/attributions/" target="_blank" rel="noopener">CARTO</a>, via <a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a></li>
+      <li>Fond de carte — © <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a>, © <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, données © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, rendu <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre GL</a> via <a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a></li>
     </ul>
   </div>
 </footer>
@@ -301,6 +303,8 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.24.0/maplibre-gl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@maplibre/maplibre-gl-leaflet@0.1.4/leaflet-maplibre-gl.js"></script>
 <script src="https://unpkg.com/leaflet-velocity@1.9.2/dist/leaflet-velocity.min.js"></script>
 <script src="js/logos.js"></script>
 <script src="js/tools.js"></script>
