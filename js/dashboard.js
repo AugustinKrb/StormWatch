@@ -49,10 +49,7 @@ import { onEvent } from './events.js';
     liberty: ofm('liberty'),
     fiord: ofm('fiord'),
   };
-  var LEGACY_BASEMAP = { voyager: 'liberty', osm: 'positron' }; // migrate pre-OpenFreeMap choices
-
   var basemapId = localStorage.getItem('sw_basemap') || 'dark';
-  basemapId = LEGACY_BASEMAP[basemapId] || basemapId;
   if (!basemaps[basemapId]) basemapId = 'dark';
   basemaps[basemapId].addTo(map);
 
