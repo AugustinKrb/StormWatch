@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.3](https://github.com/AugustinKrb/StormWatch/compare/v0.1.2...v0.1.3) (2026-08-30)
+
+
+### Bug Fixes
+
+* **map:** replace CARTO basemaps by OpenFreeMap vector styles ([#27](https://github.com/AugustinKrb/StormWatch/issues/27)) ([833a107](https://github.com/AugustinKrb/StormWatch/commit/833a10788b850549a17ba31995deab7e3ed64ed0))
+* **vigilance:** one badge per phenomenon type ([#33](https://github.com/AugustinKrb/StormWatch/issues/33)) ([3cb93ea](https://github.com/AugustinKrb/StormWatch/commit/3cb93eac0db85a8228378adb7dea694928176121))
+
 ## [0.1.2](https://github.com/AugustinKrb/StormWatch/compare/v0.1.1...v0.1.2) (2026-08-24)
 
 
