@@ -49,8 +49,10 @@ sudo chown -R 1000:1000 frames/
   [Licence Ouverte / Étalab 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/)
 - Lightning — [Blitzortung.org](https://www.blitzortung.org), community
   network, informational use only (not an official warning system)
-- Basemap — © [OpenStreetMap](https://www.openstreetmap.org/copyright)
-  contributors, tiles © [CARTO](https://carto.com/attributions/), via
+- Basemap — © [OpenFreeMap](https://openfreemap.org), ©
+  [OpenMapTiles](https://www.openmaptiles.org/), data ©
+  [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors,
+  rendered by [MapLibre GL](https://maplibre.org/) via
   [Leaflet](https://leafletjs.com)
 
 ## License
