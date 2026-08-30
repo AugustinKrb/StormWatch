@@ -5,7 +5,7 @@ requires-python = ">=3.12"
 license = "AGPL-3.0-or-later"
 dependencies = [
     "flask>=3.1",
-    "gunicorn>=26.1.0",
+    "gunicorn>=26.2.0",
     "h5py>=3.13",
     "numpy>=2.5.2",
     "pyproj>=3.7",
