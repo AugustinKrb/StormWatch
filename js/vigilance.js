@@ -161,25 +161,32 @@ export function initVigilance(map, region) {
   }
 
   function renderBadges(depts_) {
-    var active = [];
+    var byPhenomenon = {}; // pid -> { name, worst, depts: [{ name, color }] }
     depts.forEach(function (code) {
       var d = depts_[code];
       if (!d || d.color < 2) return;
       Object.keys(d.phenomena).forEach(function (pid) {
         var p = d.phenomena[pid];
-        if (p.color >= 2) active.push({ deptName: d.name, phenomenonId: pid, phenomenonName: p.name, color: p.color });
+        if (p.color < 2) return;
+        var g = byPhenomenon[pid] || (byPhenomenon[pid] = { name: p.name, worst: 0, depts: [] });
+        g.depts.push({ name: d.name, color: p.color });
+        if (p.color > g.worst) g.worst = p.color;
       });
     });
-    if (!active.length) { badges.innerHTML = ''; return; }
-    active.sort(function (a, b) { return b.color - a.color; });
 
-    var worst = active[0];
-    var emoji = phenomenonEmoji(worst.phenomenonId) || '⛈️';
-    var tooltip = active.map(function (a) {
-      return a.deptName + ' — ' + a.phenomenonName + ' — ' + COLOR_LABEL[a.color];
-    }).join('\n');
+    var groups = Object.keys(byPhenomenon);
+    if (!groups.length) { badges.innerHTML = ''; return; }
+    groups.sort(function (a, b) { return byPhenomenon[b].worst - byPhenomenon[a].worst || a - b; });
 
-    badges.innerHTML = '<div class="map-fab dept-badge ' + COLOR_CLASS[worst.color] + '" title="' + tooltip + '">' + emoji + '</div>';
+    badges.innerHTML = groups.map(function (pid) {
+      var g = byPhenomenon[pid];
+      var emoji = phenomenonEmoji(pid) || '⛈️';
+      g.depts.sort(function (a, b) { return b.color - a.color; });
+      var tooltip = g.name.toUpperCase() + '\n' + g.depts.map(function (x) {
+        return x.name + ' — ' + COLOR_LABEL[x.color];
+      }).join('\n');
+      return '<div class="map-fab dept-badge ' + COLOR_CLASS[g.worst] + '" title="' + tooltip + '">' + emoji + '</div>';
+    }).join('');
   }
 
   function poll() {
