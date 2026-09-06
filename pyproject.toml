@@ -27,8 +27,8 @@ packages = ["src"]
 [dependency-groups]
 dev = [
     "pre-commit>=4.6.2",
-    "pylint>=4.0.7",
-    "ruff>=0.16.4",
+    "pylint>=4.0.8",
+    "ruff>=0.16.5",
 ]
 
 [tool.ruff]
