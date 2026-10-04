@@ -7,14 +7,14 @@ dependencies = [
     "flask>=3.1",
     "gunicorn>=26.2.0",
     "h5py>=3.13",
-    "numpy>=2.5.2",
-    "pyproj>=3.7",
+    "numpy>=2.5.3",
+    "pyproj>=3.8.0",
     "pillow>=11.2",
     "requests>=2.32",
     "apscheduler>=3.11",
-    "python-dotenv>=1.2.3",
+    "python-dotenv>=1.2.4",
     "paho-mqtt>=2.0",
-    "rasterio>=1.5.1",
+    "rasterio>=1.5.2",
 ]
 
 [build-system]
